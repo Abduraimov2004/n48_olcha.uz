@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from olcha.models import Category, Group
+from .models import Category, Group, Product
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -29,3 +29,19 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'title', 'full_image_url', 'slug', 'count','groups']
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    groups = GroupSerializer(many=True, read_only=True)
+    full_image_url = serializers.SerializerMethodField()
+
+    def get_full_image_url(self, instance):
+        if instance.image:
+            image_url = instance.image.url
+            request = self.context.get('request')
+            return request.build_absolute_uri(image_url)
+        return None
+
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'description', 'price', 'full_image_url', 'slug', 'category', 'groups']

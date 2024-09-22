@@ -6,8 +6,8 @@ from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from olcha.models import Category, Group
-from olcha.serializers import CategorySerializer, GroupSerializer
+from .models import Category, Group, Product
+from .serializers import CategorySerializer, GroupSerializer, ProductSerializer
 
 
 # Create your views here.
@@ -50,3 +50,27 @@ class CategoryDetail(GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+
+class ProductListApiView(ListCreateAPIView):
+
+    def get(self, request):
+        product = Product.objects.all()
+        serializer = ProductSerializer(product, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+
+class ProductDetailApiView(RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = 'slug'
