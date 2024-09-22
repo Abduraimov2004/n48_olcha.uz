@@ -35,6 +35,7 @@ class ProductSerializer(serializers.ModelSerializer):
     groups = GroupSerializer(many=True, read_only=True)
     full_image_url = serializers.SerializerMethodField()
 
+
     def get_full_image_url(self, instance):
         if instance.image:
             image_url = instance.image.url
